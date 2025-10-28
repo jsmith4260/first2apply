@@ -1,5 +1,4 @@
-import { getExceptionMessage } from '@first2apply/core';
-import { Job } from '@first2apply/core';
+import { getExceptionMessage, Job } from '@first2apply/core';
 import { dialog, ipcMain, shell } from 'electron';
 import fs from 'fs';
 import { json2csv } from 'json-2-csv';
@@ -10,6 +9,8 @@ import { JobScanner } from './jobScanner';
 import { OverlayBrowserView } from './overlayBrowserView';
 import { getStripeConfig } from './stripeConfig';
 import { F2aSupabaseApi } from './supabaseApi';
+
+type MethodArg<T> = T extends (arg: infer A, ...rest: unknown[]) => unknown ? A : never;
 
 /**
  * Helper methods used to centralize error handling.
@@ -41,39 +42,43 @@ export function initRendererIpcApi({
   overlayBrowserView: OverlayBrowserView;
   nodeEnv: string;
 }) {
-  ipcMain.handle('get-os-type', (event) =>
+  ipcMain.handle('get-os-type', () =>
     _apiCall(async () => {
       return os.platform();
     }),
   );
 
-  ipcMain.handle('signup-with-email', async (event, { email, password }) =>
-    _apiCall(() => supabaseApi.signupWithEmail({ email, password })),
+  ipcMain.handle(
+    'signup-with-email',
+    async (_, payload: MethodArg<F2aSupabaseApi['signupWithEmail']>) =>
+      _apiCall(() => supabaseApi.signupWithEmail(payload)),
   );
 
-  ipcMain.handle('login-with-email', async (event, { email, password }) =>
-    _apiCall(() => supabaseApi.loginWithEmail({ email, password })),
+  ipcMain.handle(
+    'login-with-email',
+    async (_, payload: MethodArg<F2aSupabaseApi['loginWithEmail']>) =>
+      _apiCall(() => supabaseApi.loginWithEmail(payload)),
   );
 
-  ipcMain.handle('send-password-reset-email', async (event, { email }) =>
-    _apiCall(() => supabaseApi.sendPasswordResetEmail({ email })),
+  ipcMain.handle(
+    'send-password-reset-email',
+    async (_, payload: MethodArg<F2aSupabaseApi['sendPasswordResetEmail']>) =>
+      _apiCall(() => supabaseApi.sendPasswordResetEmail(payload)),
   );
 
-  ipcMain.handle('change-password', async (event, { password }) =>
-    _apiCall(() => supabaseApi.updatePassword({ password })),
+  ipcMain.handle(
+    'change-password',
+    async (_, payload: MethodArg<F2aSupabaseApi['updatePassword']>) =>
+      _apiCall(() => supabaseApi.updatePassword(payload)),
   );
 
-  ipcMain.handle('logout', async (event, {}) => _apiCall(() => supabaseApi.logout()));
+  ipcMain.handle('logout', async () => _apiCall(() => supabaseApi.logout()));
 
-  ipcMain.handle('get-user', async (event) => _apiCall(() => supabaseApi.getUser()));
+  ipcMain.handle('get-user', async () => _apiCall(() => supabaseApi.getUser()));
 
-  ipcMain.handle('create-link', async (event, { title, url, html }) =>
+  ipcMain.handle('create-link', async (_, payload: MethodArg<F2aSupabaseApi['createLink']>) =>
     _apiCall(async () => {
-      const { link, newJobs } = await supabaseApi.createLink({
-        title,
-        url,
-        html,
-      });
+      const { link, newJobs } = await supabaseApi.createLink(payload);
 
       // intentionally not awaited to not have the user wait until JDs are in
       jobScanner.scanJobs(newJobs).catch((error) => {
@@ -84,75 +89,83 @@ export function initRendererIpcApi({
     }),
   );
 
-  ipcMain.handle('update-link', async (event, { linkId, title, url }) =>
-    _apiCall(() => supabaseApi.updateLink({ linkId, title, url })),
+  ipcMain.handle('update-link', async (_, payload: MethodArg<F2aSupabaseApi['updateLink']>) =>
+    _apiCall(() => supabaseApi.updateLink(payload)),
   );
 
-  ipcMain.handle('list-links', async (event, { title, url }) => _apiCall(() => supabaseApi.listLinks()));
+  ipcMain.handle('list-links', async () => _apiCall(() => supabaseApi.listLinks()));
 
-  ipcMain.handle('delete-link', async (event, { linkId }) => _apiCall(() => supabaseApi.deleteLink(linkId)));
-
-  ipcMain.handle('list-jobs', async (event, { status, search, siteIds, linkIds, labels, limit, after }) =>
-    _apiCall(() => supabaseApi.listJobs({ status, search, siteIds, linkIds, labels, limit, after })),
+  ipcMain.handle('delete-link', async (_, linkId: MethodArg<F2aSupabaseApi['deleteLink']>) =>
+    _apiCall(() => supabaseApi.deleteLink(linkId)),
   );
 
-  ipcMain.handle('update-job-status', async (event, { jobId, status }) =>
-    _apiCall(() => supabaseApi.updateJobStatus({ jobId, status })),
+  ipcMain.handle('list-jobs', async (_, payload: MethodArg<F2aSupabaseApi['listJobs']>) =>
+    _apiCall(() => supabaseApi.listJobs(payload)),
   );
 
-  ipcMain.handle('update-job-labels', async (event, { jobId, labels }) =>
-    _apiCall(() => supabaseApi.updateJobLabels({ jobId, labels })),
+  ipcMain.handle('update-job-status', async (_, payload: MethodArg<F2aSupabaseApi['updateJobStatus']>) =>
+    _apiCall(() => supabaseApi.updateJobStatus(payload)),
   );
 
-  ipcMain.handle('list-sites', async (event) => _apiCall(() => supabaseApi.listSites()));
+  ipcMain.handle('update-job-labels', async (_, payload: MethodArg<F2aSupabaseApi['updateJobLabels']>) =>
+    _apiCall(() => supabaseApi.updateJobLabels(payload)),
+  );
 
-  ipcMain.handle('update-job-scanner-settings', async (event, { settings }) =>
-    _apiCall(async () => jobScanner.updateSettings(settings)),
+  ipcMain.handle('list-sites', async () => _apiCall(() => supabaseApi.listSites()));
+
+  ipcMain.handle(
+    'update-job-scanner-settings',
+    async (_, payload: MethodArg<JobScanner['updateSettings']>) =>
+      _apiCall(async () => jobScanner.updateSettings(payload)),
   );
 
   // handler used to fetch the cron schedule
-  ipcMain.handle('get-job-scanner-settings', async (event) => _apiCall(async () => jobScanner.getSettings()));
+  ipcMain.handle('get-job-scanner-settings', async () => _apiCall(async () => jobScanner.getSettings()));
 
-  ipcMain.handle('open-external-url', async (event, { url }) => _apiCall(async () => shell.openExternal(url)));
+  ipcMain.handle(
+    'open-external-url',
+    async (_, payload: MethodArg<typeof shell.openExternal>) =>
+      _apiCall(async () => shell.openExternal(payload)),
+  );
 
-  ipcMain.handle('scan-job-description', async (event, { job }) =>
+  ipcMain.handle('scan-job-description', async (_, payload: { job: Job }) =>
     _apiCall(async () => {
-      const [updatedJob] = await jobScanner.scanJobs([job]);
+      const [updatedJob] = await jobScanner.scanJobs([payload.job]);
       return { job: updatedJob };
     }),
   );
-  ipcMain.handle('get-app-state', async (event, {}) =>
+  ipcMain.handle('get-app-state', async () =>
     _apiCall(async () => {
       const isScanning = await jobScanner.isScanning();
       const newUpdate = await autoUpdater.getNewUpdate();
       return { isScanning, newUpdate };
     }),
   );
-  ipcMain.handle('apply-app-update', async (event, {}) =>
+  ipcMain.handle('apply-app-update', async () =>
     _apiCall(async () => {
       await autoUpdater.applyUpdate();
       return {};
     }),
   );
 
-  ipcMain.handle('create-user-review', async (event, { title, description, rating }) =>
-    _apiCall(() => supabaseApi.createReview({ title, description, rating })),
+  ipcMain.handle('create-user-review', async (_, payload: MethodArg<F2aSupabaseApi['createReview']>) =>
+    _apiCall(() => supabaseApi.createReview(payload)),
   );
 
-  ipcMain.handle('get-user-review', async (event) => _apiCall(async () => supabaseApi.getUserReview()));
+  ipcMain.handle('get-user-review', async () => _apiCall(async () => supabaseApi.getUserReview()));
 
-  ipcMain.handle('update-user-review', async (event, { id, title, description, rating }) =>
-    _apiCall(async () => supabaseApi.updateReview({ id, title, description, rating })),
+  ipcMain.handle('update-user-review', async (_, payload: MethodArg<F2aSupabaseApi['updateReview']>) =>
+    _apiCall(async () => supabaseApi.updateReview(payload)),
   );
 
-  ipcMain.handle('get-job-by-id', async (event, { jobId }) =>
+  ipcMain.handle('get-job-by-id', async (_, jobId: MethodArg<F2aSupabaseApi['getJob']>) =>
     _apiCall(async () => {
       const job = await supabaseApi.getJob(jobId);
       return { job };
     }),
   );
 
-  ipcMain.handle('export-jobs-csv', async (event, { status }) =>
+  ipcMain.handle('export-jobs-csv', async (_, payload: { status: Job['status'] }) =>
     _apiCall(async () => {
       const res = await dialog.showSaveDialog({
         properties: ['createDirectory'],
@@ -167,7 +180,7 @@ export function initRendererIpcApi({
       let after: string | undefined;
       do {
         const { jobs, nextPageToken } = await supabaseApi.listJobs({
-          status,
+          status: payload.status,
           limit: batchSize,
           after,
         });
@@ -191,66 +204,72 @@ export function initRendererIpcApi({
     }),
   );
 
-  ipcMain.handle('change-all-job-status', async (event, { from, to }) =>
+  ipcMain.handle('change-all-job-status', async (_, payload: MethodArg<F2aSupabaseApi['changeAllJobStatus']>) =>
     _apiCall(async () => {
-      const job = await supabaseApi.changeAllJobStatus({ from, to });
+      const job = await supabaseApi.changeAllJobStatus(payload);
       return { job };
     }),
   );
 
-  ipcMain.handle('get-profile', async (event, {}) =>
+  ipcMain.handle('get-profile', async () =>
     _apiCall(async () => {
       const profile = await supabaseApi.getProfile();
       return { profile };
     }),
   );
 
-  ipcMain.handle('get-stripe-config', async (event, {}) =>
+  ipcMain.handle('get-stripe-config', async () =>
     _apiCall(async () => {
       const config = await getStripeConfig(nodeEnv);
       return { config };
     }),
   );
 
-  ipcMain.handle('create-note', async (event, { job_id, text, files }) =>
-    _apiCall(() => supabaseApi.createNote({ job_id, text, files })),
+  ipcMain.handle('create-note', async (_, payload: MethodArg<F2aSupabaseApi['createNote']>) =>
+    _apiCall(() => supabaseApi.createNote(payload)),
   );
 
-  ipcMain.handle('list-notes', async (event, { job_id }) => _apiCall(() => supabaseApi.listNotes(job_id)));
-
-  ipcMain.handle('update-note', async (event, { noteId, text }) =>
-    _apiCall(() => supabaseApi.updateNote({ noteId, text })),
+  ipcMain.handle('list-notes', async (_, jobId: MethodArg<F2aSupabaseApi['listNotes']>) =>
+    _apiCall(() => supabaseApi.listNotes(jobId)),
   );
 
-  ipcMain.handle('add-file-to-note', async (event, { noteId, file }) =>
-    _apiCall(() => supabaseApi.addFileToNote({ noteId, file })),
+  ipcMain.handle('update-note', async (_, payload: MethodArg<F2aSupabaseApi['updateNote']>) =>
+    _apiCall(() => supabaseApi.updateNote(payload)),
   );
 
-  ipcMain.handle('delete-note', async (event, { noteId }) => _apiCall(() => supabaseApi.deleteNote(noteId)));
+  ipcMain.handle('add-file-to-note', async (_, payload: MethodArg<F2aSupabaseApi['addFileToNote']>) =>
+    _apiCall(() => supabaseApi.addFileToNote(payload)),
+  );
 
-  ipcMain.handle('get-advanced-matching-config', async (event, {}) =>
+  ipcMain.handle('delete-note', async (_, noteId: MethodArg<F2aSupabaseApi['deleteNote']>) =>
+    _apiCall(() => supabaseApi.deleteNote(noteId)),
+  );
+
+  ipcMain.handle('get-advanced-matching-config', async () =>
     _apiCall(() => supabaseApi.getAdvancedMatchingConfig()),
   );
 
-  ipcMain.handle('update-advanced-matching-config', async (event, { config }) =>
-    _apiCall(() => supabaseApi.updateAdvancedMatchingConfig(config)),
+  ipcMain.handle('update-advanced-matching-config', async (_, payload: MethodArg<F2aSupabaseApi['updateAdvancedMatchingConfig']>) =>
+    _apiCall(() => supabaseApi.updateAdvancedMatchingConfig(payload)),
   );
 
-  ipcMain.handle('scan-link', async (event, { linkId }) => _apiCall(() => jobScanner.scanLink({ linkId })));
+  ipcMain.handle('scan-link', async (_, payload: MethodArg<JobScanner['scanLink']>) =>
+    _apiCall(() => jobScanner.scanLink(payload)),
+  );
 
-  ipcMain.handle('open-overlay-browser-view', async (event, { url }) => {
+  ipcMain.handle('open-overlay-browser-view', async (_, url: MethodArg<OverlayBrowserView['open']>) => {
     return _apiCall(async () => overlayBrowserView.open(url));
   });
   ipcMain.handle('close-overlay-browser-view', async () => {
     return _apiCall(async () => overlayBrowserView.close());
   });
-  ipcMain.handle('overlay-browser-can-view-go-back', async (event, { url }) => {
+  ipcMain.handle('overlay-browser-can-view-go-back', async () => {
     return _apiCall(async () => overlayBrowserView.canGoBack());
   });
   ipcMain.handle('overlay-browser-view-go-back', async () => {
     return _apiCall(async () => overlayBrowserView.goBack());
   });
-  ipcMain.handle('overlay-browser-can-view-go-forward', async (event, { url }) => {
+  ipcMain.handle('overlay-browser-can-view-go-forward', async () => {
     return _apiCall(async () => overlayBrowserView.canGoForward());
   });
   ipcMain.handle('overlay-browser-view-go-forward', async () => {
@@ -259,7 +278,7 @@ export function initRendererIpcApi({
   ipcMain.handle('finish-overlay-browser-view', async () => {
     return _apiCall(async () => overlayBrowserView.finish());
   });
-  ipcMain.handle('overlay-browser-view-navigate', async (event, { url }) => {
+  ipcMain.handle('overlay-browser-view-navigate', async (_, url: MethodArg<OverlayBrowserView['navigate']>) => {
     return _apiCall(async () => overlayBrowserView.navigate(url));
   });
 }

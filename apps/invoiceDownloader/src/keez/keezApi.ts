@@ -265,7 +265,7 @@ export class KeezApi {
     method?: 'get' | 'post' | 'put' | 'delete' | 'patch';
     path: string;
     headers?: Record<string, string>;
-    body?: any;
+    body?: unknown;
     params?: Record<string, string>;
     responseType?: ResponseType;
   }): Promise<T> {
@@ -285,11 +285,11 @@ export class KeezApi {
       });
 
       return res.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         throw new Error(
           `Error calling Keez API ${method.toUpperCase()} ${path}: ${JSON.stringify(error.response?.data)}
-          
+
 ${JSON.stringify(error.config?.data ?? {}, null, 2)}`,
         );
       }

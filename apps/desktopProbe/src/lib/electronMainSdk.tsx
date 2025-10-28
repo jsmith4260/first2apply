@@ -15,7 +15,7 @@ import { User } from '@supabase/supabase-js';
 import { JobScannerSettings, NewAppVersion, OverlayBrowserViewResult } from './types';
 
 async function _mainProcessApiCall<T>(channel: string, params?: object): Promise<T> {
-  // @ts-ignore
+  // @ts-expect-error -- electron preload augments window.electron at runtime
   const { data, error } = await window.electron.invoke(channel, params);
   if (error) throw new Error(error);
 
