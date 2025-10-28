@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type DependencyList, type EffectCallback } from 'react';
 
 import { debounce } from 'lodash';
 
@@ -62,7 +62,7 @@ export function JobFilters({
   );
 }
 
-const useDidMountEffect = (effect: React.EffectCallback, deps?: React.DependencyList) => {
+const useDidMountEffect = (effect: EffectCallback, deps?: DependencyList) => {
   const isFirstRender = useRef(true);
 
   useEffect(() => {
@@ -73,6 +73,5 @@ const useDidMountEffect = (effect: React.EffectCallback, deps?: React.Dependency
 
     // Run the effect for subsequent renders
     effect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 };

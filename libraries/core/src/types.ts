@@ -231,47 +231,43 @@ export type DbSchema = {
         Relationships: [];
       };
     };
-    Views: {};
+    Views: Record<string, never>;
     Functions: {
       list_jobs: {
-        Params: {
+        Args: {
           jobs_status: JobStatus;
-          jobs_after: number | null;
+          jobs_after: string | null;
           jobs_page_size: number;
           jobs_search?: string;
           jobs_site_ids?: number[];
           jobs_link_ids?: number[];
         };
-        Args: {};
         Returns: Job[];
       };
       count_jobs: {
-        Params: {
+        Args: {
           jobs_status?: JobStatus;
           jobs_search?: string;
           jobs_site_ids?: number[];
           jobs_link_ids?: number[];
         };
-        Args: {};
         Returns: Array<{
           status: JobStatus;
           job_count: number;
         }>;
       };
       get_user_id_by_email: {
-        Params: { email: string };
-        Args: {};
+        Args: { email: string };
         Returns: { id: string };
       };
       count_chatgpt_usage: {
-        Params: {
+        Args: {
           for_user_id: string;
           cost_increment: number;
           input_tokens_increment: number;
           output_tokens_increment: number;
         };
-        Args: {};
-        Returns: {};
+        Returns: Record<string, never>;
       };
     };
   };

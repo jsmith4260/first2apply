@@ -29,7 +29,7 @@ export class AmplitudeAnalyticsClient implements IAnalyticsClient {
     this._userId = userId;
   }
 
-  public trackEvent(event: string, properties?: Record<string, any>) {
+  public trackEvent(event: string, properties?: Record<string, unknown>) {
     if (!this._isInitialized) return;
 
     amplitude.track(

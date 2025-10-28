@@ -1,6 +1,6 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
 'use client';
 
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import Link from '@/components/Link';
 import Tag from '@/components/Tag';
 import siteMetadata from '@/data/siteMetadata';
@@ -10,8 +10,6 @@ import { slug } from 'github-slugger';
 import { usePathname } from 'next/navigation';
 import { CoreContent } from 'pliny/utils/contentlayer';
 import { formatDate } from 'pliny/utils/formatDate';
-
-/* eslint-disable jsx-a11y/anchor-is-valid */
 
 interface PaginationProps {
   totalPages: number;

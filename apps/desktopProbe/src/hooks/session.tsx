@@ -24,7 +24,7 @@ const SessionContext = createContext<{
   stripeConfig: null,
   isLoggedIn: false,
   isSubscriptionExpired: false,
-  login: async (user: User) => {},
+  login: async (_: User) => {},
   logout: async () => {},
   refreshProfile: async () => {},
 });

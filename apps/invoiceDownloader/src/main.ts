@@ -1,7 +1,6 @@
 import { parseEnv } from './env';
 import * as dotenv from 'dotenv';
 
-import * as _ from 'lodash';
 import * as luxon from 'luxon';
 import { Stripe } from 'stripe';
 
@@ -41,8 +40,6 @@ async function fetchAndDownloadInvoices({ stripe }: { stripe: Stripe }) {
 
   return allInvoices;
 }
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function run() {
   // await sleep(5000);

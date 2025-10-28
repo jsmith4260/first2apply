@@ -104,7 +104,7 @@ async function upsertKeezItems({
 }) {
   // check if we have items in keez for the invoices
   console.log('checking if keez has all required items ...');
-  let keezItems = await keez.listItems();
+  const keezItems = await keez.listItems();
 
   const stripeItems: Stripe.InvoiceLineItem[] = [];
   for (const invoice of stripeInvoices) {
@@ -660,17 +660,6 @@ function fromCents(cents: number) {
   return _.round(cents / 100, 2);
 }
 
-async function deleteInvoicesFromKeez({ keez, keezInvoices }: { keez: KeezApi; keezInvoices: KeezInvoice[] }) {
-  console.log(`Deleting ${keezInvoices.length} invoices from Keez ...`);
-
-  for (const invoice of keezInvoices) {
-    const { series, number } = invoice;
-    console.log(`Deleting invoice ${series}-${number}`);
-    await keez.deleteInvoice(invoice?.externalId ?? throwError('Missing ID'));
-  }
-  console.log('All invoices deleted from Keez');
-}
-
 /**
  * Create reverse invoices for voided or refunded invoices.
  */
@@ -752,14 +741,6 @@ function sortStripeInvoiceBySeriesAndNumberAsc(a: Stripe.Invoice, b: Stripe.Invo
   const aNumber = parseInt(getInvoiceSeriesAndNumber(a).number);
   const bNumber = parseInt(getInvoiceSeriesAndNumber(b).number);
   return aNumber - bNumber;
-}
-
-function sortKeezInvoiceBySeriesAndNumberDesc(a: KeezInvoice, b: KeezInvoice) {
-  if (!a.number || !b.number) {
-    return 0;
-  }
-
-  return b.number - a.number;
 }
 
 async function downloadInvoicePdf({
