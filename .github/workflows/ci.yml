@@ -15,6 +15,8 @@ jobs:
           cache: 'pnpm'
       - name: Enable Corepack
         run: corepack enable
+      - name: Install pnpm with Corepack fallback
+        run: corepack prepare pnpm@10.19.0 --activate
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
