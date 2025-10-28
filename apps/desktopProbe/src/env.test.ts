@@ -1,10 +1,14 @@
-import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { afterAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 describe('ENV schema', () => {
   const OLD_ENV = process.env;
   beforeEach(() => {
     jest.resetModules();
     process.env = { ...OLD_ENV };
+  });
+
+  afterAll(() => {
+    process.env = OLD_ENV;
   });
 
   it('parses valid env', async () => {
