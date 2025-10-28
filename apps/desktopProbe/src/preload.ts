@@ -2,7 +2,12 @@
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 import { contextBridge, ipcRenderer } from 'electron';
 
-const theme = process.argv[process.argv.length - 1];
+const additionalArgs = process.argv.slice(1);
+const extractArg = (prefix: string) =>
+  additionalArgs.find((arg) => arg.startsWith(prefix))?.slice(prefix.length);
+
+const theme = extractArg('--theme=') ?? 'light';
+const styleNonce = extractArg('--styleNonce=');
 
 contextBridge.exposeInMainWorld('electron', {
   invoke: ipcRenderer.invoke,
@@ -10,4 +15,5 @@ contextBridge.exposeInMainWorld('electron', {
     return ipcRenderer.on(channel, callback);
   },
   theme,
+  styleNonce,
 });
