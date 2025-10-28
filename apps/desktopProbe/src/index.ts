@@ -1,3 +1,4 @@
+import { hardenedWebPreferences } from './security';
 import { ENV } from './env';
 
 import { DbSchema, getExceptionMessage } from '@first2apply/core';
@@ -54,11 +55,7 @@ const createMainWindow = () => {
   mainWindow = new BrowserWindow({
     width: storage.get('width'),
     height: storage.get('height'),
-    webPreferences: {
-      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
-      additionalArguments: [theme],
-      partition: `persist:scraper`,
-    },
+    webPreferences: hardenedWebPreferences(MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY, theme),
     autoHideMenuBar: true,
   });
 
