@@ -330,10 +330,10 @@ export class F2aSupabaseApi {
       !!data &&
       typeof data === 'object' &&
       'errorMessage' in data &&
-      // @ts-ignore
+      // @ts-expect-error -- Supabase edge functions expose errorMessage dynamically
       typeof data.errorMessage === 'string'
     ) {
-      // @ts-ignore
+      // @ts-expect-error -- Supabase edge functions expose errorMessage dynamically
       throw new Error(data.errorMessage);
     }
 

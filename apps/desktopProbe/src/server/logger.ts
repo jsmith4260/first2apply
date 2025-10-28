@@ -4,9 +4,9 @@ import { Logger as MezmoLogger, createLogger } from '@logdna/logger';
 import { app } from 'electron';
 
 export interface ILogger {
-  debug(message: string, data?: Record<string, any>): void;
-  info(message: string, data?: Record<string, any>): void;
-  error(message: string, data?: Record<string, any>): void;
+  debug(message: string, data?: Record<string, unknown>): void;
+  info(message: string, data?: Record<string, unknown>): void;
+  error(message: string, data?: Record<string, unknown>): void;
   addMeta(key: string, value: string): void;
   flush(): void;
 }
@@ -17,21 +17,21 @@ export interface ILogger {
 class Logger implements ILogger {
   constructor(private _logger: MezmoLogger) {}
 
-  debug(message: string, data?: Record<string, any>) {
+  debug(message: string, data?: Record<string, unknown>) {
     console.log(message, data);
     this._logger.debug(message, {
       meta: data,
     });
   }
 
-  info(message: string, data?: Record<string, any>) {
+  info(message: string, data?: Record<string, unknown>) {
     console.log(message, data);
     this._logger.info(message, {
       meta: data,
     });
   }
 
-  error(message: string, data?: Record<string, any>) {
+  error(message: string, data?: Record<string, unknown>) {
     console.error(message, data);
     this._logger.error(message, {
       meta: data,
