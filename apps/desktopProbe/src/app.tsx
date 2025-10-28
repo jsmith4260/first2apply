@@ -108,6 +108,7 @@ declare global {
         callback: (event: Electron.IpcRendererEvent, ...args: unknown[]) => void,
       ) => Electron.IpcRenderer;
       theme: string;
+      styleNonce?: string;
     };
   }
 }

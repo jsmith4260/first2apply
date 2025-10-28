@@ -11,8 +11,9 @@
     "build": "tsc --noEmit",
     "prettier": "prettier --check \"src/**/*.{ts,tsx}\"",
     "package": "electron-forge package",
-    "make": "electron-forge make --arch=x64",
-    "release": "npx release-it --ci"
+    "make": "cross-env NO_COLOR=1 node --stack_size=2048 ../../node_modules/@electron-forge/cli/dist/electron-forge.js make --arch=x64",
+    "release": "npx release-it --ci",
+    "test": "jest -c jest.config.ts"
   },
   "keywords": [],
   "author": "BeastX Industries",
@@ -35,11 +36,13 @@
     }
   },
   "devDependencies": {
-    "@electron-forge/cli": "*",
-    "electron": "*"
+    "@electron-forge/cli": "^7.10.2",
+    "cross-env": "^7.0.3",
+    "electron": "^38.4.0"
   },
   "dependencies": {
     "@first2apply/core": "workspace:*",
-    "@first2apply/ui": "workspace:*"
+    "@first2apply/ui": "workspace:*",
+    "zod": "^3.23.8"
   }
 }

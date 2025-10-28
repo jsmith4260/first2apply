@@ -26,6 +26,12 @@
  * ```
  */
 import './app';
-import './index.css';
+
+const { styleNonce } = window.electron ?? {};
+if (styleNonce) {
+  (globalThis as typeof globalThis & { __webpack_nonce__?: string }).__webpack_nonce__ = styleNonce;
+}
+
+void import('./index.css');
 
 console.log('👋 This message is being logged by "renderer.js", included via webpack');

@@ -231,7 +231,7 @@ export type DbSchema = {
         Relationships: [];
       };
     };
-    Views: {};
+    Views: Record<string, never>;
     Functions: {
       list_jobs: {
         Params: {
@@ -242,7 +242,7 @@ export type DbSchema = {
           jobs_site_ids?: number[];
           jobs_link_ids?: number[];
         };
-        Args: {};
+        Args: Record<string, never>;
         Returns: Job[];
       };
       count_jobs: {
@@ -252,7 +252,7 @@ export type DbSchema = {
           jobs_site_ids?: number[];
           jobs_link_ids?: number[];
         };
-        Args: {};
+        Args: Record<string, never>;
         Returns: Array<{
           status: JobStatus;
           job_count: number;
@@ -260,7 +260,7 @@ export type DbSchema = {
       };
       get_user_id_by_email: {
         Params: { email: string };
-        Args: {};
+        Args: Record<string, never>;
         Returns: { id: string };
       };
       count_chatgpt_usage: {
@@ -270,8 +270,8 @@ export type DbSchema = {
           input_tokens_increment: number;
           output_tokens_increment: number;
         };
-        Args: {};
-        Returns: {};
+        Args: Record<string, never>;
+        Returns: Record<string, never>;
       };
     };
   };
