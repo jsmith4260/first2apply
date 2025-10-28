@@ -6,7 +6,7 @@ const additionalArgs = process.argv.slice(1);
 const extractArg = (prefix: string) =>
   additionalArgs.find((arg) => arg.startsWith(prefix))?.slice(prefix.length);
 
-const theme = extractArg('--theme=') ?? additionalArgs[additionalArgs.length - 1] ?? 'light';
+const theme = extractArg('--theme=') ?? 'light';
 const styleNonce = extractArg('--styleNonce=');
 
 contextBridge.exposeInMainWorld('electron', {
