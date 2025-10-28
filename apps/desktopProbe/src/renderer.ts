@@ -27,8 +27,10 @@
  */
 import './app';
 
-const STYLE_NONCE = 'Y3NwLXN0eWxl';
-(globalThis as typeof globalThis & { __webpack_nonce__?: string }).__webpack_nonce__ = STYLE_NONCE;
+const { styleNonce } = window.electron ?? {};
+if (styleNonce) {
+  (globalThis as typeof globalThis & { __webpack_nonce__?: string }).__webpack_nonce__ = styleNonce;
+}
 
 void import('./index.css');
 

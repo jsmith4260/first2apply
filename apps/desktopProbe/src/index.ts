@@ -4,6 +4,7 @@ import { ENV } from './env';
 import { DbSchema, getExceptionMessage } from '@first2apply/core';
 import { createClient } from '@supabase/supabase-js';
 import { BrowserWindow, Notification, app, dialog, nativeTheme, safeStorage, shell } from 'electron';
+import { randomBytes } from 'crypto';
 import Storage from 'electron-store';
 import fs from 'fs';
 import path from 'path';
@@ -52,11 +53,37 @@ const createMainWindow = () => {
   // Create the browser window.
   if (mainWindow) return;
   const theme = nativeTheme.shouldUseDarkColors ? 'dark' : 'light';
+  const styleNonce = randomBytes(16).toString('base64url');
   mainWindow = new BrowserWindow({
     width: storage.get('width'),
     height: storage.get('height'),
-    webPreferences: hardenedWebPreferences(MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY, theme),
+    webPreferences: hardenedWebPreferences(MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY, theme, styleNonce),
     autoHideMenuBar: true,
+  });
+
+  const contentSecurityPolicy = [
+    "default-src 'self'",
+    "script-src 'self'",
+    `style-src 'self' 'nonce-${styleNonce}'`,
+    "img-src 'self' data:",
+    "connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co wss://*.supabase.in",
+    "object-src 'none'",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+  ].join('; ');
+
+  mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+    if (details.resourceType !== 'mainFrame') {
+      callback({ responseHeaders: details.responseHeaders });
+      return;
+    }
+
+    const responseHeaders = {
+      ...details.responseHeaders,
+      'Content-Security-Policy': [contentSecurityPolicy],
+    };
+
+    callback({ responseHeaders });
   });
 
   // and load the index.html of the app.
