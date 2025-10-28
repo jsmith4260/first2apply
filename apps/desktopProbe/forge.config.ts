@@ -2,6 +2,7 @@ import { config as loadEnvVars } from 'dotenv';
 
 import { MakerAppX } from '@electron-forge/maker-appx';
 import { MakerDeb } from '@electron-forge/maker-deb';
+import { MakerRpm } from '@electron-forge/maker-rpm';
 import { MakerDMG } from '@electron-forge/maker-dmg';
 import { MakerSquirrel } from '@electron-forge/maker-squirrel';
 import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives';
@@ -64,7 +65,7 @@ const config: ForgeConfig = {
       devCert: path.join(__dirname, 'packagers', 'appx', 'devcert.pfx'),
       certPass: '', // No password
     }),
-    // new MakerRpm({}),
+    new MakerRpm({}),
     new MakerDeb({
       options: {
         name: 'First 2 Apply',

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, type PropsWithChildren } from 'react';
 
 import { createLink, deleteLink, listLinks, updateLink } from '@/lib/electronMainSdk';
 import { Link } from '@first2apply/core';
@@ -48,7 +48,7 @@ export const useLinks = () => {
 };
 
 // Provider component
-export const LinksProvider = ({ children }: React.PropsWithChildren<{}>) => {
+export const LinksProvider = ({ children }: PropsWithChildren) => {
   const { handleError } = useError();
   const { isLoggedIn } = useSession();
 

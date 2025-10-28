@@ -1,5 +1,4 @@
-import path from 'path';
-import type { AssetInfo, Configuration, PathData } from 'webpack';
+import type { Configuration } from 'webpack';
 
 import { plugins } from './webpack.plugins';
 import { rules } from './webpack.rules';

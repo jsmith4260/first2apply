@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, type PropsWithChildren } from 'react';
 
 import { listSites } from '@/lib/electronMainSdk';
 import { JobSite } from '@first2apply/core';
@@ -28,7 +28,7 @@ export const useSites = () => {
 };
 
 // Create a provider for the sites
-export const SitesProvider = ({ children }: React.PropsWithChildren<{}>) => {
+export const SitesProvider = ({ children }: PropsWithChildren) => {
   const { handleError } = useError();
   const { isLoggedIn } = useSession();
 
