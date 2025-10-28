@@ -95,8 +95,8 @@ export function initRendererIpcApi({
 
   ipcMain.handle('list-links', async () => _apiCall(() => supabaseApi.listLinks()));
 
-  ipcMain.handle('delete-link', async (_, linkId: MethodArg<F2aSupabaseApi['deleteLink']>) =>
-    _apiCall(() => supabaseApi.deleteLink(linkId)),
+  ipcMain.handle('delete-link', async (_, { linkId }: { linkId: number }) =>
+    _apiCall(() => supabaseApi.deleteLink(linkId))
   );
 
   ipcMain.handle('list-jobs', async (_, payload: MethodArg<F2aSupabaseApi['listJobs']>) =>
