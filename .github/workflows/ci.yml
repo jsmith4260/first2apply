@@ -18,6 +18,8 @@ jobs:
         with:
           version: 8
       - run: corepack enable
+      - name: Install pnpm
+        run: corepack prepare pnpm@8.15.6 --activate
       - run: pnpm --version
       - run: pnpm install --frozen-lockfile
       - name: Lint
