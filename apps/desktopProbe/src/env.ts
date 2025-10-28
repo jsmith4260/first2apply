@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 const RawEnv = z.object({
-  NODE_ENV: z.enum(['development','production','test']).default('production'),
+  NODE_ENV: z.enum(['development', 'production', 'test']).default('production'),
   APP_BUNDLE_ID: z.string().min(1, 'APP_BUNDLE_ID is required'),
   SUPABASE_URL: z.string().url('SUPABASE_URL must be a valid URL'),
   SUPABASE_KEY: z.string().min(1, 'SUPABASE_KEY is required'),
